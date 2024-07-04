@@ -2,7 +2,7 @@ import socket
 
 # Manager info
 HOST = "127.0.0.1"
-PORT = 65431
+PORT = 65432
 
 # Creates the s socket
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
