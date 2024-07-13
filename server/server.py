@@ -1,32 +1,27 @@
-import socket
+# Import modules
+import sys, os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../')
+from RPC.RPCServer import RPCServer
 
-# Manager info
-HOST = "127.0.0.1"
-PORT = 65432
+# Create server
+server = RPCServer()
 
-# Creates the s socket
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    # Try to connect with Manager
-    print("> Server Status: Trying to connect with Manager...")
-    s.connect((HOST, PORT))
-    print("> Server Status: Connection accepted.")
+# Return string
+def string(s):
+    return s
 
-    while True:
-        # Receive data from input
-        msg = input("\n> Write a message: ")
+# Add two numbers
+def add(a, b):
+    return a+b
 
-        # Loop breaker
-        if msg == "":
-            print("\n> Server Status: No data sent.")
-            print("> Server Status: Exiting server...")
-            break
+# Sub two numbers
+def sub(a, b):
+    return a-b
 
-        # Send data to Manager
-        print("\n> Server Status: Sending data...")
-        s.sendall(msg.encode("utf-8"))
-        print("> Server Status: Data sent successfully!")
+# Register methods
+server.registerMethod(string)
+server.registerMethod(add)
+server.registerMethod(sub)
 
-        # Receive data from Manager
-        print("\n> Server Status: Receiving data...")
-        data = s.recv(1024).decode("utf-8")
-        print(f"> Data: {data}")
+# Run server
+server.run()
