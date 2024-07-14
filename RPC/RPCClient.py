@@ -19,7 +19,7 @@ class RPCClient:
             self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
             # Try to connect with Manager
-            print("> Client status: Trying to connect with Manager...")
+            print("> Client status: Trying to connect with Server...")
             self.__sock.connect(self.__address)
             print("> Client status: Connection accepted.")
 
@@ -43,6 +43,7 @@ class RPCClient:
         try:
             # Close socket
             self.__sock.close()
+            print("\n> Client status: Connection closed.")
         except:
             pass
 
