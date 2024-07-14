@@ -1,6 +1,6 @@
 # Import modules
 import sys, os
-path = os.path.dirname(os.path.abspath(__file__)) + "/"
+path = os.path.dirname(os.path.abspath(__file__)) + '/'
 sys.path.append(path + '../')
 from RPC.RPCClient import RPCClient
 
@@ -9,6 +9,19 @@ client = RPCClient()
 
 # Connect client to server
 client.connect()
+
+def sendFile(path, filename):
+    with open(path + filename, 'rb') as file:
+        file_content = file.read().decode()
+
+    data = {
+        'filename': filename,
+        'file_content': file_content
+    }
+
+    client.sendData(data)
+
+    return 
 
 if client.isConnected():
     print("\n( • ֊ •)づ Hello, welcome to BACKUP SYSTEM!")
@@ -24,7 +37,7 @@ if client.isConnected():
 
         # Call procedures
         if io == "1":
-            print(f"ADD = {client.add(5, 6)}")
+            print(sendFile(path, "teste.txt"))
 
         elif io == "2":
             print(f"SUB = {client.sub(5, 6)}")
