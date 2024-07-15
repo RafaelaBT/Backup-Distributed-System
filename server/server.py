@@ -8,31 +8,15 @@ from RPC.RPCServer import RPCServer
 server = RPCServer()
 
 # Return string
-def string(s):
+def string(s:str):
     return s
 
-def sendData(data):
-    filename = data['filename']
-    file_content = data['file_content']
-
-    with open(path + filename, 'wb') as file:
-        file.write(file_content.encode())
-
-    return f'Recebido arquivo {filename}.'
-
-# Add two numbers
-def add(a, b):
-    return a+b
-
-# Sub two numbers
-def sub(a, b):
-    return a-b
+def sendPath():
+    return path
 
 # Register methods
 server.registerMethod(string)
-server.registerMethod(sendData)
-server.registerMethod(add)
-server.registerMethod(sub)
+server.registerMethod(sendPath)
 
 # Run server
 server.run()

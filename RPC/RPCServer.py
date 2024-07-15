@@ -10,7 +10,7 @@ SIZE = 1024
 # RPC Server class
 class RPCServer:
     # Server constructor
-    def __init__(self, host:str='127.0.0.1', port:int=65432) -> None:
+    def __init__(self, host:str='127.0.0.1', port:int=65433) -> None:
         self.host = host
         self.port = port
         self.addr = (host, port)
@@ -33,7 +33,7 @@ class RPCServer:
                     self._methods.update({functionName: function})
         except:
             raise Exception('\n> Server status: A non class object has been passed into RPCServer.registerInstance(self, instance)')
-
+        
     # Thread body
     def __handle__(self, conn:socket.socket, addr:tuple) -> None:
         print(f"\n> Server Status: Connected with {addr[0]}:{addr[1]}")
@@ -50,17 +50,39 @@ class RPCServer:
             # Show data
             print(f"\n> Data from {addr[0]}:{addr[1]}: {args}")
 
-            try:
-                # Create response
-                response = self._methods[functionName](*args, **kwargs)
-            except Exception as e:
-                print(f"\n> Server status: Sending error...")
-                conn.sendall(json.dumps(str(e)).encode())
+            if functionName == 'sendFilename':
+                conn.sendall(json.dumps('Filename received.').encode())
+                try: 
+                    path = self._methods['sendPath']()
+                    
+                    with open(path + args[0], 'wb') as file:
+                        while True:
+                            chunk = conn.recv(SIZE)
+                            if chunk.endswith(b'EOF'):
+                                file.write(chunk[:-3])
+                                break
+                            file.write(chunk)
+
+                except Exception as e:
+                    print(f"\n> Server status: Sending error...")
+                    conn.sendall(json.dumps(str(e)).encode())
+                else:
+                    # Send response
+                    print(f"\n> Server Status: Returning data...")
+                    conn.sendall(json.dumps('File received successfully!').encode())
+                    print("> Server Status: Data sent successfully!")
             else:
-                # Send response
-                print(f"\n> Server Status: Returning data...")
-                conn.sendall(json.dumps(response).encode())
-                print("> Server Status: Data sent successfully!")
+                try:
+                    # Create response
+                    response = self._methods[functionName](*args, **kwargs)
+                except Exception as e:
+                    print(f"\n> Server status: Sending error...")
+                    conn.sendall(json.dumps(str(e)).encode())
+                else:
+                    # Send response
+                    print(f"\n> Server Status: Returning data...")
+                    conn.sendall(json.dumps(response).encode())
+                    print("> Server Status: Data sent successfully!")
 
         # Close connection
         conn.close()

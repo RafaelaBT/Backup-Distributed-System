@@ -10,25 +10,11 @@ client = RPCClient()
 # Connect client to server
 client.connect()
 
-def sendFile(path, filename):
-    with open(path + filename, 'rb') as file:
-        file_content = file.read().decode()
-
-    data = {
-        'filename': filename,
-        'file_content': file_content
-    }
-
-    client.sendData(data)
-
-    return 
-
-if client.isConnected():
-    print("\n( • ֊ •)づ Hello, welcome to BACKUP SYSTEM!")
-
-    while True:
+print("\n( • ֊ •)づ Hello, welcome to BACKUP SYSTEM!")
+while True:
+    if client.isConnected():
         print("\n──────────────── ⋆ ☆ MENU ☆ ⋆ ─────────────────")
-        print("\n1 - ADD\n2 - SUB")
+        print("\n1 - UPLOAD")
         io = input("\nWrite the option number or press ENTER to exit: ")
 
         if io == "":
@@ -37,13 +23,20 @@ if client.isConnected():
 
         # Call procedures
         if io == "1":
-            print(sendFile(path, "teste.txt"))
 
-        elif io == "2":
-            print(f"SUB = {client.sub(5, 6)}")
+            filename = "plano-ensino-sd-q2-2023.pdf"
+            if client.sendFile(path, filename):
+                print("\n( •̀  ᴗ ´•̀)✧ File sent successfully!")
+            else:
+                print("\n【• _ • ?】An error occurred, please try again later.")
+
         else:
             print("\n( ô ‸ ō )....????? Sorry, I don't know this option.")
             print("\n(  •̀ ᴗ - )ᕤ But don't worry, lets try again!")
 
-    # Diconnect client
-    client.disconnect()
+    else:
+        print("\n( ╥ ᴗ ╥) Sorry, server is not available. Please try again later.")
+        break
+
+# Diconnect client
+client.disconnect()
