@@ -20,22 +20,22 @@ class RPCClient:
             self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
             # Try to connect with Manager
-            print("> Client status: Trying to connect with Manager...")
+            #print("> Client status: Trying to connect with Manager...")
             self.__sock.connect(self.address)
-            print("> Client status: Connection accepted.")
+            #print("> Client status: Connection accepted.")
 
         except EOFError:
             raise Exception('> Client status: not able to connect.')
         
     def isConnected(self):
         try:
-            print("\n> Client status: Connection test.")
+            #print("\n> Client status: Connection test.")
             self.string('Connection test.')
-            print("> Client status: Client is connected.")
+            #print("> Client status: Client is connected.")
             return True
     
         except:
-            print("> Client status: Unavailable server.")
+            #print("> Client status: Unavailable server.")
             return False
     
     # Disconnect client
@@ -43,7 +43,7 @@ class RPCClient:
         try:
             # Close socket
             self.__sock.close()
-            print("\n> Client status: Connection closed.")
+            #print("\n> Client status: Connection closed.")
         except:
             pass
 
@@ -64,7 +64,7 @@ class RPCClient:
             client.__sock.sendall(b'EOF')
 
             response = json.loads(client.__sock.recv(SIZE).decode())
-            print(f"\n> Client status: {response}")
+            #print(f"\n> Client status: {response}")
 
             client.disconnect()
 
