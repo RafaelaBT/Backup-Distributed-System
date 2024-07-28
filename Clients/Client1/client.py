@@ -1,30 +1,32 @@
 # Import modules
 import sys, os
-path = os.path.dirname(os.path.abspath(__file__)) + '/'
-sys.path.append(path + '../')
-from RPC.RPCClient import RPCClient
+path = os.path.dirname(os.path.abspath(__file__)) + '/Files/'
+sys.path.append(path + '../../')
+from RPCClient import RPCClient
+
+print("\n( • ֊ •)づ Hello, welcome to BACKUP SYSTEM!")
 
 # Create client
 client = RPCClient()
 
-# Connect client to server
+# Connect client to manager
 client.connect()
 
-print("\n( • ֊ •)づ Hello, welcome to BACKUP SYSTEM!")
 while True:
     if client.isConnected():
         print("\n──────────────── ⋆ ☆ MENU ☆ ⋆ ─────────────────")
-        print("\n1 - UPLOAD")
-        io = input("\nWrite the option number or press ENTER to exit: ")
+        files = os.listdir(path)
+        for file in files:
+            print(file)
 
-        if io == "":
+        filename = input("\nWrite the file name or press ENTER to exit: ")
+
+        if filename == "":
             print("\n(„• ֊ •„)੭ Byee, see you later!")
             break
 
         # Call procedures
-        if io == "1":
-
-            filename = "plano-ensino-sd-q2-2023.pdf"
+        if filename in files:
             if client.sendFile(path, filename):
                 print("\n( •̀  ᴗ ´•̀)✧ File sent successfully!")
             else:

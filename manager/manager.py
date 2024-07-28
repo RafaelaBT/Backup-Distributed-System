@@ -1,8 +1,5 @@
 # Import modules
-import sys, os
-path = os.path.dirname(os.path.abspath(__file__)) + '/'
-sys.path.append(path + '../')
-from RPC.RPCManager import RPCManager
+from RPCManager import RPCManager
 
 # Create server
 manager = RPCManager()
@@ -11,13 +8,28 @@ manager = RPCManager()
 def string(s:str):
     return s
 
-def serverRegister(addr:tuple):
-    manager._servers.append(addr)
-    return "Server registered."
+def addServer(addr:tuple, capacity:int):
+    return manager.serverRegister(addr, capacity)
+
+def removeServer(addr:tuple):
+    return manager.delServer(addr)
+
+def getServer():
+    return manager.chooseServer()
+
+def updateServer(addr:tuple, capacity:int):
+    return manager.updateCapacity(addr, capacity)
+
+def getQuantity():
+    return manager.getSize()
 
 # Register methods
 manager.registerMethod(string)
-manager.registerMethod(serverRegister)
+manager.registerMethod(addServer)
+manager.registerMethod(removeServer)
+manager.registerMethod(getServer)
+manager.registerMethod(updateServer)
+manager.registerMethod(getQuantity)
 
 # Run manager
 manager.run()

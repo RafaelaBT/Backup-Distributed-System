@@ -5,12 +5,13 @@ import json
 # Buffer size
 SIZE = 1024
 
+
 # RPC Client class
 class RPCClient:
     # Client constructor
-    def __init__(self, host:str='127.0.0.1', port:int=65433) -> None:
+    def __init__(self, host:str='127.0.0.1', port:int=65432) -> None:
         self.__sock = None
-        self.__address = (host, port)
+        self.address = (host, port)
 
     # Client connection
     def connect(self):
@@ -18,9 +19,9 @@ class RPCClient:
             # Create socket
             self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-            # Try to connect with Server
-            print("> Client status: Trying to connect with Server...")
-            self.__sock.connect(self.__address)
+            # Try to connect with Manager
+            print("> Client status: Trying to connect with Manager...")
+            self.__sock.connect(self.address)
             print("> Client status: Connection accepted.")
 
         except EOFError:
@@ -47,21 +48,27 @@ class RPCClient:
             pass
 
     def sendFile(self, path:str, filename:str):
+        addr = self.getServer()
         try:
-            self.sendFilename(filename)
+            client = RPCClient(addr[0], addr[1])
+            client.connect()
+
+            client.sendFilename(filename)
 
             with open (path + filename, 'rb') as file:
                 while True:
                     chunk = file.read(SIZE)
                     if not chunk:
                         break
-                    self.__sock.sendall(chunk)
-            self.__sock.sendall(b'EOF')
+                    client.__sock.sendall(chunk)
+            client.__sock.sendall(b'EOF')
 
-            response = json.loads(self.__sock.recv(SIZE).decode())
+            response = json.loads(client.__sock.recv(SIZE).decode())
             print(f"\n> Client status: {response}")
+
+            client.disconnect()
+
             return True
-        
         except:
             print("\n> Client status: Unable to send file.")
             return False

@@ -10,10 +10,15 @@ SIZE = 1024
 # RPC Server class
 class RPCServer:
     # Server constructor
-    def __init__(self, host:str='127.0.0.1', port:int=65433) -> None:
+    def __init__(self, host:str, port:int, capacity:int, mngHost:str='127.0.0.1', mngPort:int = 65432) -> None:
+        self.__sock = None
+        self.managerAddr = (mngHost, mngPort)
+
         self.host = host
         self.port = port
         self.addr = (host, port)
+        self.capacity = capacity
+
         self._methods = {}
 
     # Methods register
@@ -34,6 +39,72 @@ class RPCServer:
         except:
             raise Exception('\n> Server status: A non class object has been passed into RPCServer.registerInstance(self, instance)')
         
+    def __connect__(self):
+        try:
+            # Create socket
+            self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+            # Try to connect with Manager
+            print("> Server status: Trying to connect with Manager...")
+            self.__sock.connect(self.managerAddr)
+            print("> Server status: Connection accepted.")
+
+            if self.addServer(self.addr, self.capacity):
+                print("\n> Server status: Server registered.")
+
+        except EOFError:
+            raise Exception('> Server status: not able to connect.')
+        
+    def __getattr__(self, __name:str):
+        def execute(*args, **kwargs):
+            self.__sock.sendall(json.dumps((__name, args, kwargs)).encode())
+
+            response = json.loads(self.__sock.recv(SIZE).decode())
+
+            return response
+        return execute
+
+    # Disconnect server
+    def disconnect(self):
+        try:
+            # Close socket
+            self.removeServer(self.addr)
+            self.__sock.close()
+            print("\n> Server status: Connection with Manager closed.")
+        except:
+            pass
+    
+    def __del__(self):
+        try:
+            self.__sock.close()
+        except:
+            pass
+
+    def backup(self, addr:tuple, path:str, filename:str):
+        try:
+            # Create socket
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            print(">\n Server status: Trying to connect with Server...")
+            sock.connect((addr[0], addr[1]))
+
+            print("> Server status: Connection accepted.")
+            sock.sendall(json.dumps(('sendFilename', [filename], "backup")).encode())
+
+            with open (path + filename, 'rb') as file:
+                while True:
+                    chunk = file.read(SIZE)
+                    if not chunk:
+                        break
+                    sock.sendall(chunk)
+            sock.sendall(b'EOF')
+
+            response = json.loads(sock.recv(SIZE).decode())
+            print(f"\n> Server status: {response}")
+            sock.close()
+
+        except EOFError:
+            raise Exception('> Client status: not able to connect.')
+
     # Thread body
     def __handle__(self, conn:socket.socket, addr:tuple) -> None:
         print(f"\n> Server Status: Connected with {addr[0]}:{addr[1]}")
@@ -42,6 +113,7 @@ class RPCServer:
             try:
                 # Receive data
                 functionName, args, kwargs = json.loads(conn.recv(SIZE).decode())
+                print(functionName, args, kwargs)
 
             except:
                 print(f"\n> Server status: Client {addr[0]}:{addr[1]} disconnected.")
@@ -52,10 +124,12 @@ class RPCServer:
 
             if functionName == 'sendFilename':
                 conn.sendall(json.dumps('Filename received.').encode())
+
                 try: 
                     path = self._methods['sendPath']()
+                    filename = args[0]
                     
-                    with open(path + args[0], 'wb') as file:
+                    with open(path + filename, 'wb') as file:
                         while True:
                             chunk = conn.recv(SIZE)
                             if chunk.endswith(b'EOF'):
@@ -67,10 +141,21 @@ class RPCServer:
                     print(f"\n> Server status: Sending error...")
                     conn.sendall(json.dumps(str(e)).encode())
                 else:
+                    self.capacity = self.capacity + 1
+                    self.updateServer(self.addr, self.capacity)
+
                     # Send response
                     print(f"\n> Server Status: Returning data...")
                     conn.sendall(json.dumps('File received successfully!').encode())
                     print("> Server Status: Data sent successfully!")
+
+                if kwargs != "backup":
+                    if self.getQuantity() > 1:
+                        while True:
+                            server = self.getServer()
+                            if server != self.addr:
+                                break
+                        self.backup(server, path, filename)
             else:
                 try:
                     # Create response
@@ -90,7 +175,8 @@ class RPCServer:
 
     # Server runner
     def run(self) -> None:
-        # All threads array
+        self.__connect__()
+
         threads = []
 
         # Create a socket
@@ -100,7 +186,7 @@ class RPCServer:
 
             # Ennable the server accept connections
             sock.listen()
-            print("> Server Status: ON.")
+            print("\n> Server Status: ON.")
 
             try:
                 while True:
@@ -108,15 +194,17 @@ class RPCServer:
                     conn, addr = sock.accept()
 
                     # Create and start a thread
-                    thread = Thread(target=self.__handle__, args=[conn, addr])
-                    thread.start()
+                    thread2 = Thread(target=self.__handle__, args=[conn, addr])
+                    thread2.start()
 
                     # Append thread
-                    threads.append(thread)
+                    threads.append(thread2)
             except KeyboardInterrupt:
                 print("\n> Server closed unexpectedly.") # Ctrl + C
             finally:
                 if sock:
                     sock.close()   # Close socket
                 for thread in threads:
-                    thread.join()    # Wait thread finish
+                    thread.join()    # Wait thread finish'''
+
+        self.disconnect()
