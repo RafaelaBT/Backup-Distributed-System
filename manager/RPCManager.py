@@ -68,7 +68,7 @@ class RPCManager:
     def updateCapacity(self, addr:tuple, capacity:int):
         name = self.getKey(addr)
         self._servers[name]['capacity'] = capacity
-        print(f"\n> Manager status: Server capacity {name} updated to {self.server[name]}.")
+        print(f"\n> Manager status: Server capacity {name} updated to {self._servers[name]}.")
         for key, value in self._servers.items():
             print(f"{key}: {value}")
         return True
