@@ -14,8 +14,8 @@ def addServer(addr:tuple, capacity:int):
 def removeServer(addr:tuple):
     return manager.delServer(addr)
 
-def getServer():
-    return manager.chooseServer()
+def getServer(addr:tuple=None):
+    return manager.chooseServer(addr)
 
 def updateServer(addr:tuple, capacity:int):
     return manager.updateCapacity(addr, capacity)

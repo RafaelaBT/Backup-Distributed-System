@@ -1,9 +1,8 @@
 # Essential Libraries
-import socket
-import json
+import socket, json
 
 # Buffer size
-SIZE = 1024
+SIZE = 65536
 
 
 # RPC Client class
@@ -70,7 +69,7 @@ class RPCClient:
 
             return True
         except:
-            print("\n> Client status: Unable to send file.")
+            #print("\n> Client status: Unable to send file.")
             return False
 
     def __getattr__(self, __name:str):

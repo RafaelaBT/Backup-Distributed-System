@@ -1,11 +1,9 @@
 # Essential Libraries
-import inspect
-import socket
+import inspect, socket, json, os
 from threading import Thread
-import json
 
 # Buffer size
-SIZE = 1024
+SIZE = 65536
 
 # RPC Server class
 class RPCServer:
@@ -113,7 +111,6 @@ class RPCServer:
             try:
                 # Receive data
                 functionName, args, kwargs = json.loads(conn.recv(SIZE).decode())
-                print(functionName, args, kwargs)
 
             except:
                 print(f"\n> Server status: Client {addr[0]}:{addr[1]} disconnected.")
@@ -141,7 +138,7 @@ class RPCServer:
                     print(f"\n> Server status: Sending error...")
                     conn.sendall(json.dumps(str(e)).encode())
                 else:
-                    self.capacity = self.capacity + 1
+                    self.capacity += os.path.getsize(path + filename)
                     self.updateServer(self.addr, self.capacity)
 
                     # Send response
@@ -151,10 +148,7 @@ class RPCServer:
 
                 if kwargs != "backup":
                     if self.getQuantity() > 1:
-                        while True:
-                            server = self.getServer()
-                            if server != self.addr:
-                                break
+                        server = self.getServer(self.addr)
                         self.backup(server, path, filename)
             else:
                 try:

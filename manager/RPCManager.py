@@ -1,11 +1,9 @@
 # Essential Libraries
-import inspect
-import socket
+import inspect, socket, json, copy
 from threading import Thread
-import json
 
 # Buffer size
-SIZE = 1024
+SIZE = 65536
 
 # RPC Manager class
 class RPCManager:
@@ -56,8 +54,11 @@ class RPCManager:
         except KeyError as e:
             raise Exception(f"\nManager status: couldn't remove {name}.")
     
-    def chooseServer(self):
-        addr = min(self._servers, key=lambda k: self._servers[k]['capacity']).split(':')
+    def chooseServer(self, addr):
+        list = copy.deepcopy(self._servers)
+        if addr != None:
+            del list[self.getKey(addr)]
+        addr = min(list, key=lambda k: list[k]['capacity']).split(':')
         print(f"\n> Manager status: {addr} is the chosen server.")
         for key, value in self._servers.items():
             print(f"{key}: {value}")

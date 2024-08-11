@@ -3,15 +3,20 @@ import sys, os
 path = os.path.dirname(os.path.abspath(__file__)) + '/Backups/'
 os.makedirs(path, exist_ok=True)
 
-content = os.listdir(path)
-files = [f for f in content if os.path.isfile(os.path.join(path, f))]
+def getSize(path):
+    size = 0
+    for dirpath, dirnames, filenames in os.walk(path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            size += os.path.getsize(fp)
+    return size
 
 sys.path.append(path + '../../')
 from RPCServer import RPCServer
 
 IP = '127.0.0.1'
 PORT = 65434
-CAPACITY = len(files)
+CAPACITY = getSize(path)
 
 # Create server
 server = RPCServer(IP, PORT, CAPACITY)
