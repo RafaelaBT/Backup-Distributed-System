@@ -9,6 +9,7 @@ SIZE = 65536
 class RPCManager:
     # Manager constructor
     def __init__(self, host:str='127.0.0.1', port:int=65432) -> None:
+        # Manager info
         self.host = host
         self.port = port
         self.addr = (host, port)
@@ -32,48 +33,60 @@ class RPCManager:
                     self._methods.update({functionName: function})
         except:
             raise Exception('\n> Manager status: A non class object has been passed into RPCManager.registerInstance(self, instance)')
-        
+    
+    # Return Addr as a key from servers dictionary
     def getKey(self, addr:str):
         return str(addr[0])+":"+str(addr[1])
-        
+    
+    # Show ON servers
+    def showServers(self) -> None:
+        print("> Servers ON:")
+        for key, value in self._servers.items():
+            print(f"\t{key}: {value}")
+    
+    # Add server to servers dictionary
     def serverRegister(self, addr:tuple, capacity:int):
         name = self.getKey(addr)
         self._servers[name] = {'capacity':capacity}
         print(f"\n> Manager status: server {name} is ON.")
-        for key, value in self._servers.items():
-            print(f"{key}: {value}")
+        self.showServers()
         return True
     
+    # Remove server from servers dictionary
     def delServer(self, addr:tuple) -> None:
         try:
             name = self.getKey(addr)
             del self._servers[name]
             print(f"\n> Manager status: Server {name} is OFF.")
-            for key, value in self._servers.items():
-                print(f"{key}: {value}")
+            self.showServers()
         except KeyError as e:
             raise Exception(f"\nManager status: couldn't remove {name}.")
     
+    # Choose server from servers dictionary
     def chooseServer(self, addr):
-        list = copy.deepcopy(self._servers)
+        # Create a copy from servers dictionary
+        cdict = copy.deepcopy(self._servers)
+
+        # Remove server addr
         if addr != None:
-            del list[self.getKey(addr)]
-        addr = min(list, key=lambda k: list[k]['capacity']).split(':')
+            del cdict[self.getKey(addr)]
+
+        # Choose server by capacity (bytes)
+        addr = min(cdict, key=lambda k: cdict[k]['capacity']).split(':')
         print(f"\n> Manager status: {addr} is the chosen server.")
-        for key, value in self._servers.items():
-            print(f"{key}: {value}")
         ip = addr[0]
         port = int(addr[1])
         return (ip, port)
     
+    # Update server capacity
     def updateCapacity(self, addr:tuple, capacity:int):
         name = self.getKey(addr)
         self._servers[name]['capacity'] = capacity
         print(f"\n> Manager status: Server capacity {name} updated to {self._servers[name]}.")
-        for key, value in self._servers.items():
-            print(f"{key}: {value}")
+        self.showServers()
         return True
     
+    # Get servers dictionary size
     def getSize(self):
         return len(self._servers)
         
@@ -91,7 +104,7 @@ class RPCManager:
                 break
 
             # Show data
-            print(f"\n> Data from {addr[0]}:{addr[1]}: {args}")
+            print(f"\n> Data from {addr[0]}:{addr[1]}: {functionName}{args}")
 
             try:
                 # Create response

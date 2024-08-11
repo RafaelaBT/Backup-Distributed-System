@@ -1,8 +1,11 @@
-# Import modules
+# Essential libraries
 import sys, os
+
+# Create backup folder
 path = os.path.dirname(os.path.abspath(__file__)) + '/Backups/'
 os.makedirs(path, exist_ok=True)
 
+# Get files size in bytes
 def getSize(path):
     size = 0
     for dirpath, dirnames, filenames in os.walk(path):
@@ -11,9 +14,11 @@ def getSize(path):
             size += os.path.getsize(fp)
     return size
 
+# Import modules
 sys.path.append(path + '../../')
 from RPCServer import RPCServer
 
+# Server info
 IP = '127.0.0.1'
 PORT = 65433
 CAPACITY = getSize(path)
@@ -25,6 +30,7 @@ server = RPCServer(IP, PORT, CAPACITY)
 def string(s:str):
     return s
 
+# Send server path
 def sendPath():
     return path
 

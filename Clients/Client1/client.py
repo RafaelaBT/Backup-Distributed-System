@@ -15,27 +15,29 @@ client.connect()
 while True:
     if client.isConnected():
         print("\n──────────────── ⋆ ☆ MENU ☆ ⋆ ─────────────────")
+        # List files
         files = os.listdir(path)
         for file in files:
             print(file)
 
+        # Get filename from user
         filename = input("\nWrite the file name or press ENTER to exit: ")
 
+        # Exit system
         if filename == "":
             print("\n(„• ֊ •„)੭ Byee, see you later!")
             break
-
-        # Call procedures
+        
+        # Check filename
         if filename in files:
+            # Send file
             if client.sendFile(path, filename):
                 print("\n( •̀  ᴗ ´•̀)✧ File sent successfully!")
             else:
                 print("\n【• _ • ?】An error occurred, please try again later.")
-
         else:
             print("\n( ô ‸ ō )....????? Sorry, I don't know this option.")
             print("\n(  •̀ ᴗ - )ᕤ But don't worry, lets try again!")
-
     else:
         print("\n( ╥ ᴗ ╥) Sorry, server is not available. Please try again later.")
         break
