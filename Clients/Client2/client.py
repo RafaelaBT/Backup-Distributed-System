@@ -1,6 +1,10 @@
-# Import modules
+# Essential libraries
 import sys, os
+
+# Client path
 path = os.path.dirname(os.path.abspath(__file__)) + '/Files/'
+
+# Import modules
 sys.path.append(path + '../../')
 from RPCClient import RPCClient
 

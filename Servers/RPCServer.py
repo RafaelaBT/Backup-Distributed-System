@@ -203,11 +203,11 @@ class RPCServer:
                     conn, addr = sock.accept()
 
                     # Create and start a thread
-                    thread2 = Thread(target=self.__handle__, args=[conn, addr])
-                    thread2.start()
+                    thread = Thread(target=self.__handle__, args=[conn, addr])
+                    thread.start()
 
                     # Append thread
-                    threads.append(thread2)
+                    threads.append(thread)
             except KeyboardInterrupt:
                 print("\n> Server closed unexpectedly.") # Ctrl + C
             finally:
