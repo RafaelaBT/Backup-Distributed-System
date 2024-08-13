@@ -95,6 +95,8 @@ class RPCServer:
             print("> Server status: Connection accepted.")
             sock.sendall(json.dumps(('sendFilename', [filename], "backup")).encode())
 
+            json.loads(sock.recv(SIZE).decode())
+
             # Send file by chunks
             with open (path + filename, 'rb') as file:
                 while True:
